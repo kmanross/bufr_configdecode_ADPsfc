@@ -1,0 +1,28 @@
+
+ CONFIGURATION FILE bufrsurface_config              
+   CHOICES FOLLOW
+
+ -------------------------------------------------------
+    FILTER   USE  CRITERIA
+ RECORD TYPE  n   RECGET  (1- 4 OF  0)                                
+    OBS TYPE  y   OBSGET  (1- 4 OF  0)  SYNOP       forced  by WBBDO          
+   DATE/TIME  y   IBEGDAT 2010032300  IENDDAT 2010032318
+   MNEMONICS  n   NEMLIST (1-20 OF  0)                                                                                                    
+                                                                                                                                       
+   LAT-LON    n   LATS -90  LATN  90  LONW -180  LONE  180
+   CIRCLES    n   RADR      0
+                  LATR, LONR (1- 3 OF  0)   99.99,  999.99   99.99,  999.99   99.99,  999.99
+  ELEVATION   n   IELEVL -1000  IELEVH 12000
+WMO STATIONS  n   WMOLIST (1-20 OF  0)                                                            
+                                                                                               
+WMO BLOCKS    y   WBBLIST (1-10 OF  3) 70 71 72                     
+ -------------------------------------------------------
+
+ BUFR EXTRACTION STATISTICS FOR FILE INFILE  gdas.adpsfc.t00z.20100323.bufr
+     RECORDS    FOUND            0
+     RECORDS REJECTED            0
+     RECORDS ACCEPTED            0
+
+     REPORTS   OPENED            0 (FROM ACCEPTED RECORDS)
+     REPORTS ACCEPTED            0
+     REPORTS REJECTED            0
