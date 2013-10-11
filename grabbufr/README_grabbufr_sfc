@@ -1,7 +1,0 @@
-All Files to be decoded on little-endian linux machines must first
-be processed with the "grabbufr/grabbufr.sh" script, whose
-resulting output can be used as input for the decoders. **
-
-To execute:
-
-grabbufr.sh <infile> <outfile>
