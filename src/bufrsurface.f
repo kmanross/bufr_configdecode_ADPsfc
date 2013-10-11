@@ -539,7 +539,7 @@ C                 IF (N.LE.7)  THEN       ! PUT THIS MNEMONIC IN THE HEADER
                   IF (N.LE.9)  THEN       ! PUT THIS MNEMONIC IN THE HEADER
                     DUMPHED(2)(I+1:I+10)  = XN(1:10-N)//NEMLIST(M)(1:N)
                   ELSE
-                    DUMPHED(2)(I+1:I+10)  =             NEMLIST(M)(1:10)
+                    DUMPHED(2)(I+1:I+10)  =             NEMLIST(M)(1:N)
                   ENDIF
 C                 IHDEND = IHDEND + 10
                   IHDEND = IHDEND + 12
@@ -994,7 +994,7 @@ C
             EXIT DORECS         ! GO PRINT STATISTICS FOR THIS FILE'S PROCESSING
           ENDIF
 C
-          CODE = IUPBS1(MBAY,33)
+C          CODE = IUPBS1(MBAY,33)
 C
           RECORDS = RECORDS + 1
 c
@@ -1003,10 +1003,12 @@ c
           MODREC = MOD(RECORDS,I500)
           IF (DODIAG.EQ.'y')  THEN
             IF (RECORDS.LE.50.OR.MODREC.EQ.1)  THEN
-              WRITE (IDUNIT,9120)  RECORDS, RECDATE, CSUBSET, CODE
+C              WRITE (IDUNIT,9120)  RECORDS, RECDATE, CSUBSET, CODE
+              WRITE (IDUNIT,9120)  RECORDS, RECDATE, CSUBSET
 9120          FORMAT (/,1X,111('#'),
      +          /,1X,'BUFR RECORD ',I8,' WITH RECDATE ',I10,
-     +          ' OPENED,  CSUBSET ',A8,'  CODE',I8)
+     +          ' OPENED,  CSUBSET ',A8)
+C     +          ' OPENED,  CSUBSET ',A8,'  CODE',I8)
             ENDIF
           ENDIF
 C
