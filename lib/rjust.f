@@ -26,7 +26,7 @@ C     RJUST    - REAL: ALWAYS RETURNED AS 0 (DUMMY)
 C
 C REMARKS:
 C    THIS ROUTINE CALLS:        BORT
-C    THIS ROUTINE IS CALLED BY: UFBDMP   UFDUMP   VALX
+C    THIS ROUTINE IS CALLED BY: SNTBBE   UFBDMP   UFDUMP   VALX
 C                               Normally not called by any application
 C                               programs but it could be.
 C

@@ -28,6 +28,10 @@ C 2003-11-04  S. BENDER  -- ADDED REMARKS/BUFRLIB ROUTINE
 C                           INTERDEPENDENCIES
 C 2003-11-04  D. KEYSER  -- UNIFIED/PORTABLE FOR WRF; ADDED HISTORY
 C                           DOCUMENTATION
+C 2007-01-19  J. ATOR    -- BIG-ENDIAN VS. LITTLE-ENDIAN IS NOW
+C                           DETERMINED AT COMPILE TIME AND CONFIGURED
+C                           WITHIN BUFRLIB VIA CONDITIONAL COMPILATION
+C                           DIRECTIVES
 C
 C USAGE:    IREV (N)
 C   INPUT ARGUMENT LIST:
@@ -43,7 +47,7 @@ C
 C REMARKS:
 C    THIS ROUTINE CALLS:        None
 C    THIS ROUTINE IS CALLED BY: IPKM     IUPM     PKB      PKC
-C                               UPB      UPBB
+C                               UPBB
 C                               Normally not called by any application
 C                               programs.
 C
@@ -53,7 +57,7 @@ C   MACHINE:  PORTABLE TO ALL PLATFORMS
 C
 C$$$
 
-      COMMON /HRDWRD/ NBYTW,NBITW,NREV,IORD(8)
+      COMMON /HRDWRD/ NBYTW,NBITW,IORD(8)
 
       CHARACTER*8 CINT,DINT
       EQUIVALENCE(CINT,INT)
@@ -62,19 +66,15 @@ C$$$
 C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 
-C     Note that the value of NREV is set within subroutine WRDLEN.
 
-      IF(NREV.EQ.0) THEN
-c  .... big-endian
-         IREV = N
-      ELSE
-c  .... little-endian
-         INT = N
-         DO I=1,NBYTW
-         DINT(I:I) = CINT(IORD(I):IORD(I))
-         ENDDO
-         IREV = JNT
-      ENDIF
+
+
+      INT = N
+      DO I=1,NBYTW
+        DINT(I:I) = CINT(IORD(I):IORD(I))
+      ENDDO
+      IREV = JNT
+
 
       RETURN
       END

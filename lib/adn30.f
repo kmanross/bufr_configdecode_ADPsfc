@@ -34,8 +34,10 @@ C                VALUE)
 C
 C REMARKS:
 C    THIS ROUTINE CALLS:        BORT
-C    THIS ROUTINE IS CALLED BY: CADN30   DXINIT   ISTDESC  NUMTAB
-C                               SEQSDX   UFBQCD   UPDS3    WRITDX
+C    THIS ROUTINE IS CALLED BY: CADN30   DXINIT   ISTDESC  NEMTBD
+C                               NUMTAB   RDMTBB   RDMTBD   READS3
+C                               SEQSDX   SNTBDE   UFBQCD   UPDS3
+C                               WRDXTB
 C                               Normally not called by any application
 C                               programs.
 C
@@ -45,7 +47,7 @@ C   MACHINE:  PORTABLE TO ALL PLATFORMS
 C
 C$$$
 
-      COMMON /HRDWRD/ NBYTW,NBITW,NREV,IORD(8)
+      COMMON /HRDWRD/ NBYTW,NBITW,IORD(8)
 
       CHARACTER*(*) ADN30
       CHARACTER*128 BORT_STR

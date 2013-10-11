@@ -25,7 +25,7 @@ C                       'Y' = 'YES'
 C
 C REMARKS:
 C    THIS ROUTINE CALLS:        BORT     CAPIT
-C    THIS ROUTINE IS CALLED BY: COPYSB   WRITCA   WRITCP
+C    THIS ROUTINE IS CALLED BY: COPYSB   WRITCP
 C                               Also called by application programs.
 C
 C ATTRIBUTES:

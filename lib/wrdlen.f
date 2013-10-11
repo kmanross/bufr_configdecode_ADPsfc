@@ -10,9 +10,7 @@ C   ABOUT THE LOCAL MACHINE ON WHICH THE BUFR ARCHIVE LIBRARY SOFTWARE
 C   IS BEING RUN AND STORES THIS INTO COMMON BLOCK /HRDWRD/.  SUCH
 C   INFORMATION INCLUDES DETERMINING THE NUMBER OF BITS AND THE NUMBER
 C   OF BYTES IN A MACHINE WORD AS WELL AS DETERMINING WHETHER THE
-C   MACHINE USES THE ASCII OR EBCDIC CHARACTER SET AND WHETHER IT USES
-C   THE "BIG-ENDIAN" OR "LITTLE-ENDIAN" SCHEME FOR NUMBERING THE BYTES
-C   WITHIN A MACHINE WORD.
+C   MACHINE USES THE ASCII OR EBCDIC CHARACTER SET.
 C
 C   NOTE: IT IS ONLY NECESSARY FOR THIS SUBROUTINE TO BE CALLED ONCE,
 C   AND THIS IS NORMALLY DONE DURING THE FIRST CALL TO BUFR ARCHIVE
@@ -39,17 +37,19 @@ C                           THIS ROUTINE IS CALLED (BEFORE WAS
 C                           UNDEFINED WHEN FIRST REFERENCED)
 C 2004-08-18  J. ATOR    -- ADDED SAVE FOR IFIRST FLAG AND IMMEDIATE
 C                           RETURN IF IFIRST=1
+C 2007-01-19  J. ATOR    -- BIG-ENDIAN VS. LITTLE-ENDIAN IS NOW
+C                           DETERMINED AT COMPILE TIME AND CONFIGURED
+C                           WITHIN BUFRLIB VIA CONDITIONAL COMPILATION
+C                           DIRECTIVES
+C 2009-03-23  J. ATOR    -- CALL BVERS TO GET VERSION NUMBER
 C
 C USAGE:    CALL WRDLEN
 C
-C   OUTPUT FILES:
-C     UNIT 06  - STANDARD OUTPUT PRINT
-C
 C REMARKS:
-C    THIS ROUTINE CALLS:        BORT     IUPM
+C    THIS ROUTINE CALLS:        BORT     BVERS    ERRWRT   IUPM
 C    THIS ROUTINE IS CALLED BY: COBFL    COPYBF   DATEBF   DATELEN
-C                               DUMPBF   IUPBS01  IUPBS1   MESGBC
-C                               MESGBF   OPENBF   OVRBS1   UPDS3
+C                               DUMPBF   IUPBS01  MESGBC   MESGBF
+C                               OPENBF   RDMTBB   UPDS3
 C                               Normally not called by any application
 C                               programs.
 C
@@ -59,12 +59,12 @@ C   MACHINE:  PORTABLE TO ALL PLATFORMS
 C
 C$$$
 
-      COMMON /HRDWRD/ NBYTW,NBITW,NREV,IORD(8)
+      COMMON /HRDWRD/ NBYTW,NBITW,IORD(8)
       COMMON /CHARAC/ IASCII,IATOE(0:255),IETOA(0:255)
       COMMON /QUIET / IPRT
 
-      CHARACTER*128 BORT_STR
-      CHARACTER*8   CINT,DINT
+      CHARACTER*128 BORT_STR,ERRSTR
+      CHARACTER*8   CINT,DINT,CVSTR
       CHARACTER*6   CNDIAN,CLANG
       EQUIVALENCE   (CINT,INT)
       EQUIVALENCE   (DINT,JNT)
@@ -102,7 +102,7 @@ C  -----------------------------------------
       IF(INT.EQ.0) GOTO 10
       ENDDO
 c  .... DK: Can the below ever happen since upper loop bounds is 65?
-10    IF(I.GE.65)       GOTO 900
+   10 IF(I.GE.65)       GOTO 900
       IF(MOD(I,8).NE.0) GOTO 901
 
 C  NBITW is no. of bits in a word, NBYTW is no. of bytes in a word
@@ -116,9 +116,6 @@ C  -----------------------------------------------------
 
       JNT = 0
 
-C  Initialize IORD to 9999
-C  -----------------------
-
       DO I = 1,8
          IORD(I) = 9999
       ENDDO
@@ -129,23 +126,8 @@ C  -----------------------
             IF(CINT(J:J).NE.DINT(J:J)) GOTO 20
          ENDDO
 c  .... DK: Can the below ever happen since upper loop bounds is NBYTW?
-20       IF(J.GT.NBYTW) GOTO 902
+   20    IF(J.GT.NBYTW) GOTO 902
          IORD(I) = J
-      ENDDO
-
-C  SET THE NOREVERSE FLAG - 0=NOREVERSE;1=REVERSE
-C  ----------------------------------------------
-
-C     i.e. set NREV = 0 if the machine is "big-endian"
-C          set NREV = 1 if the machine is "little-endian"
-
-      NREV = 0
-      CNDIAN = '  BIG '
-      DO I=1,NBYTW
-      IF(IORD(I).NE.I) THEN
-         NREV = 1
-         CNDIAN = 'LITTLE'
-      ENDIF
       ENDDO
 
 C  SETUP AN ASCII/EBCDIC TRANSLATOR AND DETERMINE WHICH IS NATIVE
@@ -450,32 +432,50 @@ C  SHOW SOME RESULTS
 C  -----------------
 
       IF(PRINT) THEN
-         PRINT 100, NBYTW,NBITW,CNDIAN,NREV,IORD,CLANG
-100   FORMAT(/15('='),' WELCOME TO BUFR ARCHIVE LIBRARY ',15('=')/
-     . 'MACHINE CHARACTERISTICS: NUMBER OF BYTES PER WORD =',I2,
-     . ', NUMBER OF BITS PER WORD =',I3,','/25X,'BYTE ORDER IS ',A6,
-     . ' ENDIAN (NREV=',I2,', IORD=',8I1,'), '/25X,A6,' IS THE NATIVE ',
-     . 'LANGUAGE'/14('='),' "UNIFIED" VERSION: 2004-08-18 ',
-     . 14('=')/)
+         CALL BVERS(CVSTR)
+
+
+
+         CNDIAN = 'LITTLE'
+
+      ERRSTR = '=============== ' //
+     . 'WELCOME TO THE BUFR ARCHIVE LIBRARY' // ' =============='
+      CALL ERRWRT(ERRSTR)
+      WRITE (  UNIT=ERRSTR, FMT='(A,I2)' )
+     . ' MACHINE CHARACTERISTICS: NUMBER OF BYTES PER WORD =', NBYTW
+      CALL ERRWRT(ERRSTR)
+      WRITE (  UNIT=ERRSTR, FMT='(A,I3)' )
+     . '                          NUMBER OF BITS PER WORD =', NBITW
+      CALL ERRWRT(ERRSTR)
+      ERRSTR = '                          BYTE ORDER IS ' // CNDIAN //
+     .  ' ENDIAN'
+      CALL ERRWRT(ERRSTR)
+      ERRSTR = '                          ' // CLANG //
+     .  ' IS THE NATIVE LANGUAGE'
+      CALL ERRWRT(ERRSTR)
+      ERRSTR = '====================== VERSION: ' // CVSTR //
+     .  '=========================='
+      CALL ERRWRT(ERRSTR)
+      CALL ERRWRT(' ')
       ENDIF
 
 C  EXITS
 C  -----
 
       RETURN
-900   WRITE(BORT_STR,'("BUFRLIB: WRDLEN - MACHINE WORD LENGTH IS '//
+  900 WRITE(BORT_STR,'("BUFRLIB: WRDLEN - MACHINE WORD LENGTH IS '//
      . 'LIMITED TO 64 BITS (THIS MACHINE APPARENTLY HAS",I4," BIT '//
      . 'WORDS!)")') I
       CALL BORT(BORT_STR)
-901   WRITE(BORT_STR,'("BUFRLIB: WRDLEN - MACHINE WORD LENGTH (",I4,"'//
+  901 WRITE(BORT_STR,'("BUFRLIB: WRDLEN - MACHINE WORD LENGTH (",I4,"'//
      . ') IS NOT A MULTIPLE OF 8 (THIS MACHINE HAS WORDS NOT ON WHOLE'//
      . ' BYTE BOUNDARIES!)")') I
       CALL BORT(BORT_STR)
-902   WRITE(BORT_STR,'("BUFRLIB: WRDLEN - BYTE ORDER CHECKING MISTAKE'//
+  902 WRITE(BORT_STR,'("BUFRLIB: WRDLEN - BYTE ORDER CHECKING MISTAKE'//
      . ', LOOP INDEX J (HERE =",I3,") IS .GT. NO. OF BYTES PER WORD '//
      . 'ON THIS MACHINE (",I3,")")') J,NBYTW
       CALL BORT(BORT_STR)
-903   WRITE(BORT_STR,'("BUFRLIB: WRDLEN - CAN''T DETERMINE MACHINE '//
+  903 WRITE(BORT_STR,'("BUFRLIB: WRDLEN - CAN''T DETERMINE MACHINE '//
      . 'NATIVE LANGUAGE (CHAR. A UNPACKS TO INT.",I4," NEITHER ASCII '//
      . ' (65) NOR EBCDIC (193)")') IA
       CALL BORT(BORT_STR)

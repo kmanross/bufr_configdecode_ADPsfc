@@ -11,6 +11,7 @@ C PROGRAM HISTORY LOG:
 C 2003-11-04  J. ATOR    -- ORIGINAL AUTHOR
 C 2003-11-04  D. KEYSER  -- UNIFIED/PORTABLE FOR WRF
 C 2004-08-18  J. ATOR    -- USE bufrlib.h INCLUDE FILE
+C 2007-01-19  J. ATOR    -- FIX DECLARATION FOR ANSI-C
 C
 C USAGE:    CALL BORT_EXIT
 C
@@ -28,7 +29,7 @@ C$$$*/
 
 #include "bufrlib.h"
 
-void bort_exit( )
+void bort_exit( void )
 {
     exit( EXIT_FAILURE );
 }

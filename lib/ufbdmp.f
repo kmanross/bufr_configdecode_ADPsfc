@@ -64,6 +64,7 @@ C 2004-08-18  J. ATOR    -- MODIFIED FUZZINESS TEST;ADDED READLC OPTION;
 C                           RESTRUCTURED SOME LOGIC FOR CLARITY
 C 2006-04-14  D. KEYSER  -- ADD CALL TO UPFTBV FOR FLAG TABLES TO GET
 C                           ACTUAL BITS THAT WERE SET TO GENERATE VALUE
+C 2007-01-19  J. ATOR    -- USE FUNCTION IBFMS
 C
 C USAGE:    CALL UFBDMP (LUNIN, LUPRT)
 C   INPUT ARGUMENT LIST:
@@ -110,7 +111,8 @@ C    ENTERS "q" FOLLOWED BY "<enter>" AFTER THE PROMPT, IN WHICH CASE
 C    THIS SUBROUTINE STOPS THE SCROLL AND RETURNS TO THE CALLING
 C    PROGRAM (PRESUMABLY TO READ IN THE NEXT SUBSET IN THE BUFR FILE).
 C
-C    THIS ROUTINE CALLS:        BORT     RJUST    STATUS   UPFTBV
+C    THIS ROUTINE CALLS:        BORT     IBFMS    ISIZE    READLC
+C                               RJUST    STATUS   UPFTBV
 C    THIS ROUTINE IS CALLED BY: None
 C                               Normally called only by application
 C                               programs.
@@ -130,7 +132,7 @@ C$$$
      .                IBT(MAXJL),IRF(MAXJL),ISC(MAXJL),
      .                ITP(MAXJL),VALI(MAXJL),KNTI(MAXJL),
      .                ISEQ(MAXJL,2),JSEQ(MAXJL)
-      COMMON /USRINT/ NVAL(NFILES),INV(MAXJL,NFILES),VAL(MAXJL,NFILES)
+      COMMON /USRINT/ NVAL(NFILES),INV(MAXSS,NFILES),VAL(MAXSS,NFILES)
       COMMON /TABABD/ NTBA(0:NFILES),NTBB(0:NFILES),NTBD(0:NFILES),
      .                MTAB(MAXTBA,NFILES),IDNA(MAXTBA,NFILES,2),
      .                IDNB(MAXTBB,NFILES),IDND(MAXTBD,NFILES),
@@ -149,13 +151,11 @@ C$$$
       CHARACTER*3  TYP,TP
       CHARACTER*1  TAB,YOU
       EQUIVALENCE  (VL,VC)
-      REAL*8       VAL,VL,BMISS,BDIFD
+      REAL*8       VAL,VL
 
       PARAMETER (MXFV=31)
       INTEGER	IFV(MXFV)
 
-      DATA BMISS /10E10/
-      DATA BDIFD /5000./
       DATA YOU /'Y'/
 
 C----------------------------------------------------------------------
@@ -228,22 +228,21 @@ C              this value.
                   BITS(1:1) = '('
                   IPT = 2
                   DO II=1,NIFV
-                    IF(IFV(II).LT.10) THEN
-                       ISZ = 1
-                    ELSE
-                       ISZ = 2
-                    ENDIF
+                    ISZ = ISIZE(IFV(II))
                     WRITE(FMTF,'(A2,I1,A4)') '(I', ISZ, ',A1)'
                     IF((IPT+ISZ).LE.14) THEN
                        WRITE(BITS(IPT:IPT+ISZ),FMTF) IFV(II), ','
                        IPT = IPT + ISZ + 1
+                    ELSE
+                       BITS(2:13) = 'MANY BITS ON'
+                       IPT = 15
                     ENDIF
                   ENDDO
                   BITS(IPT-1:IPT-1) = ')'
                ENDIF
             ENDIF
          ENDIF
-         IF(ABS(VL-BMISS).LT.BDIFD) THEN
+         IF(IBFMS(VL).NE.0) THEN
             LCHR = 'MISSING'
             RJ = RJUST(LCHR)
             WRITE(LUOUT,2) NV,TP,IT,TG_RJ,LCHR,IB,IS,IR,ND,JP,LK,JB
@@ -262,7 +261,7 @@ C              this value.
          ELSE
             LCHR = VC
          ENDIF
-         IF(ABS(VL-BMISS).LT.BDIFD) LCHR = 'MISSING'
+         IF(IBFMS(VL).NE.0) LCHR = 'MISSING'
          RJ = RJUST(LCHR)
          WRITE(LUOUT,2) NV,TP,IT,TG_RJ,LCHR,IB,IS,IR,ND,JP,LK,JB
       ENDIF

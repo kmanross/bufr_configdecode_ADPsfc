@@ -31,6 +31,7 @@ C                           VERIFICATION VERSION); UNIFIED/PORTABLE FOR
 C                           WRF; ADDED DOCUMENTATION (INCLUDING
 C                           HISTORY); OUTPUTS MORE COMPLETE DIAGNOSTIC
 C                           INFO WHEN ROUTINE TERMINATES ABNORMALLY
+C 2007-01-19  J. ATOR    -- USE FUNCTION IBFMS AND SIMPLIFY LOGIC
 C
 C USAGE:    CALL INVMRG (LUBFI, LUBFJ)
 C   INPUT ARGUMENT LIST:
@@ -40,7 +41,7 @@ C     LUBFJ    - INTEGER: FORTRAN LOGICAL UNIT NUMBER FOR OUTPUT BUFR
 C                FILE
 C
 C REMARKS:
-C    THIS ROUTINE CALLS:        BORT     NWORDS   STATUS
+C    THIS ROUTINE CALLS:        BORT     IBFMS    NWORDS   STATUS
 C    THIS ROUTINE IS CALLED BY: None
 C                               Normally called only by application
 C                               programs.
@@ -54,7 +55,7 @@ C$$$
       INCLUDE 'bufrlib.prm'
 
       COMMON /MRGCOM/ NRPL,NMRG,NAMB,NTOT
-      COMMON /USRINT/ NVAL(NFILES),INV(MAXJL,NFILES),VAL(MAXJL,NFILES)
+      COMMON /USRINT/ NVAL(NFILES),INV(MAXSS,NFILES),VAL(MAXSS,NFILES)
       COMMON /TABLES/ MAXTAB,NTAB,TAG(MAXJL),TYP(MAXJL),KNT(MAXJL),
      .                JUMP(MAXJL),LINK(MAXJL),JMPB(MAXJL),
      .                IBT(MAXJL),IRF(MAXJL),ISC(MAXJL),
@@ -65,9 +66,7 @@ C$$$
       CHARACTER*10  TAG
       CHARACTER*3   TYP
       LOGICAL       HEREI,HEREJ,MISSI,MISSJ,SAMEI
-      REAL*8        VAL,BMISS
-
-      DATA BMISS /10E10/
+      REAL*8        VAL
 
 C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
@@ -123,25 +122,11 @@ C  --------------------------------------------------
 C  FOR TYPES 2 AND 3 FILL MISSINGS
 C  -------------------------------
 
-      IF(ITYP.EQ.2) THEN
-         HEREI = VAL(IS,LUNI).LT.BMISS
-         HEREJ = VAL(JS,LUNJ).LT.BMISS
-         MISSI = VAL(IS,LUNI).GE.BMISS
-         MISSJ = VAL(JS,LUNJ).GE.BMISS
-         SAMEI = VAL(IS,LUNI).EQ.VAL(JS,LUNJ)
-         IF(HEREI.AND.MISSJ) THEN
-            VAL(JS,LUNJ) = VAL(IS,LUNI)
-            NMRG = NMRG+1
-         ELSEIF(HEREI.AND.HEREJ.AND..NOT.SAMEI) THEN
-            NAMB = NAMB+1
-         ENDIF
-      ENDIF
-
-      IF(ITYP.EQ.3) THEN
-         HEREI = VAL(IS,LUNI).NE.BMISS
-         HEREJ = VAL(JS,LUNJ).NE.BMISS
-         MISSI = VAL(IS,LUNI).EQ.BMISS
-         MISSJ = VAL(JS,LUNJ).EQ.BMISS
+      IF((ITYP.EQ.2).OR.(ITYP.EQ.3)) THEN
+         HEREI = IBFMS(VAL(IS,LUNI)).EQ.0
+         HEREJ = IBFMS(VAL(JS,LUNJ)).EQ.0
+         MISSI = .NOT.(HEREI)
+         MISSJ = .NOT.(HEREJ)
          SAMEI = VAL(IS,LUNI).EQ.VAL(JS,LUNJ)
          IF(HEREI.AND.MISSJ) THEN
             VAL(JS,LUNJ) = VAL(IS,LUNI)
