@@ -1,6 +1,8 @@
                                                                 Doug Schuster
                                                                 Gregg Walters
                                                                 July 22, 2010
+                                                                Updated 14 October 2013
+                                                                <manross@ucar.edu>
 
 USING THE BUFR DECODING SOFTWARE
 
@@ -21,14 +23,14 @@ Here is a list of the bufr_configdecode sub-directories and their descriptions.
 
     exe         Where the install places the decoder executables.
 
-    grabbufr    Has a conversion to make BUFR files readable on
-                  little_endian machines, such as linux machines.
-
     install     Has a shell script for compiling and installing BUFR
                   decoders.
 
     lib         NCEP BUFR decoder support library - mostly FORTRAN
-                  source code, plus a few C source codes.
+                  source code, plus a few C source codes.  Includes 
+                  its own setup script 'makebufrlib.sh' which is called
+                  from within install/install.sh so you shouldn't need
+                  to run it, but may if you like.
 
     src         Two FORTRAN BUFR decoder source code files.  A
                   flexible, user configurable program plus a simple
@@ -47,9 +49,13 @@ All directories (except "textobs") contain their own README files.
 1.  PREPARING THE DECODER SOFTWARE:
 
    -To compile the BUFR libraries and extraction code, go to the "install"
-    directory and set the CPLAT variable in the install.sh script to reflect the
-    correct platform.  Initially CPLAT=linux.  Execute the install.sh script
-    to complete the compilations.  The executables will be placed in the
+    directory and execute the install.sh script to complete the compilations.
+
+    Note: instal.sh is set to use 'gfortran' as the compiler and linker.  This 
+    is tested and works for linux (including Mac/Darwin variants), but may need
+    adjusted for other operating systems.
+
+    The executables will be placed in the
     "exe" directory.  You could copy them to an arbitrary directory,
     notably your bin, where they could be executed from anywhere.
 
@@ -63,8 +69,6 @@ All directories (except "textobs") contain their own README files.
 
     -Place your downloaded files, which have the naming structure "gdassfcobs.yyyymmdd.tar.gz",
      in the bufrobs directory.
-    -Edit the "exe/preprocess.csh" script to reflect the proper directory path to the decoder software
-     "set procdir=$home/bufr_configdecode", and the correct platform "set CPLAT=linux".
     -Execute the "exe/preprocess.csh" script.
     -All individual BUFR files are extracted and placed in the "BUFROBS" directory. 
     -File names must appear in the following format to proceed further:
@@ -95,7 +99,7 @@ All directories (except "textobs") contain their own README files.
 Downloading the RDADB ds461.0 BUFR data files is supported from the "Data Access"
 tab near the top of the ds461.0 home page
 
-    http://dss.ucar.edu/datasets/ds461.0/ 
+    http://rda.ucar.edu/datasets/ds461.0/ 
 
 RDA ds461.0 file names have the form: gdassfcobs.yyyymmdd.tar.gz. Individual
 BUFR files must be extracted from the tar.gz files for use with the decoders. 
