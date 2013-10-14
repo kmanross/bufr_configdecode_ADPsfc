@@ -2,7 +2,7 @@
                                                                 Gregg Walters
                                                                 July 22, 2010
                                                                 Updated 14 October 2013
-                                                                <manross@ucar.edu>
+                                                                Kevin Manross
 
 USING THE BUFR DECODING SOFTWARE
 
@@ -22,6 +22,8 @@ Here is a list of the bufr_configdecode sub-directories and their descriptions.
                   and a link to recent NCEP BUFR tables.
 
     exe         Where the install places the decoder executables.
+
+    -grabbufr-  No longer needed
 
     install     Has a shell script for compiling and installing BUFR
                   decoders.
